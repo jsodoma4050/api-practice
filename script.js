@@ -5,6 +5,7 @@ const FACTS_URL = 'https://api.api-ninjas.com/v1/facts';
 
 // Get DOM elements
 const refreshBtn = document.getElementById('refreshBtn');
+const darkModeToggle = document.getElementById('darkModeToggle');
 const quoteCategory = document.getElementById('quoteCategory');
 const quoteDisplay = document.getElementById('quoteDisplay');
 const factDisplay = document.getElementById('factDisplay');
@@ -12,6 +13,25 @@ const loadingQuote = document.getElementById('loadingQuote');
 const loadingFact = document.getElementById('loadingFact');
 const errorDisplay = document.getElementById('errorDisplay');
 const errorMessage = document.getElementById('errorMessage');
+
+// Dark Mode Functions
+function initDarkMode() {
+    const darkMode = localStorage.getItem('darkMode');
+    if (darkMode === 'enabled') {
+        document.body.classList.add('dark-mode');
+        updateDarkModeButton(true);
+    }
+}
+
+function toggleDarkMode() {
+    const isDarkMode = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
+    updateDarkModeButton(isDarkMode);
+}
+
+function updateDarkModeButton(isDarkMode) {
+    darkModeToggle.textContent = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
+}
 
 // Processing Layer - API Request Function
 async function makeAPIRequest(url, params = {}) {
@@ -38,7 +58,7 @@ async function getQuote(category) {
     try {
         showLoading('quote', true);
         
-        const data = await makeAPIRequest(QUOTES_URL, { category: category });
+        const data = await makeAPIRequest(QUOTES_URL);
         
         if (!data || data.length === 0) {
             throw new Error('No quotes found for this category');
@@ -157,6 +177,8 @@ async function refreshContent() {
 // Event Listeners - UI Layer
 refreshBtn.addEventListener('click', refreshContent);
 
+darkModeToggle.addEventListener('click', toggleDarkMode);
+
 quoteCategory.addEventListener('change', loadQuote);
 
 // Initialize app
@@ -165,6 +187,10 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Data Layer: Connected to API Ninjas (Quotes + Facts)');
     console.log('Processing Layer: Ready for multiple API requests');
     console.log('UI Layer: Event listeners attached');
+    console.log('🌓 Dark Mode: Ready with localStorage persistence');
+    
+    // Initialize dark mode
+    initDarkMode();
     
     // Check if API key is configured
     if (API_KEY === 'YOUR_API_KEY_HERE') {
